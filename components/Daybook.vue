@@ -51,7 +51,7 @@ export default {
     <div class="max-w-[85rem] px-2 pt-8 pb-[150px] mx-auto">
       <div
         v-if="list.length === 0"
-        class="min-h-[15rem] flex flex-col bg-white rounded-xl dark:bg-gray-800 dark:border-gray-700 dark:shadow-slate-700/[.7]"
+        class="min-h-[15rem] flex flex-col bg-white rounded-xl"
       >
         <div
           class="flex flex-auto flex-col justify-center items-center p-4 md:p-5"
@@ -66,7 +66,7 @@ export default {
         <!-- Card -->
         <a
           v-for="item in list"
-          class="group flex flex-col bg-white border shadow-sm rounded-xl hover:shadow-md transition dark:bg-slate-900 dark:border-gray-800"
+          class="group flex flex-col bg-white border shadow-sm rounded-xl hover:shadow-md transition"
           href="#"
         >
           <div class="p-4 md:p-5">
@@ -74,7 +74,7 @@ export default {
               <div class="flex items-center">
                 <div class="ml-0">
                   <h3
-                    class="group-hover:text-blue-600 font-semibold text-gray-800 dark:group-hover:text-gray-400 dark:text-gray-200"
+                    class="group-hover:text-blue-600 font-semibold text-gray-800"
                   >
                     {{ item.time }}
                   </h3>
