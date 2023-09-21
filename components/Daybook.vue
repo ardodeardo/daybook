@@ -103,7 +103,7 @@ export default {
 <template>
   <div class="relative w-full md:w-[420px] px-5 mx-auto">
     <!-- Card Section -->
-    <div class="max-w-[85rem] px-2 pt-8 pb-[150px] mx-auto">
+    <div class="max-w-[85rem] px-2 pt-8 pb-[120px] mx-auto">
       <div
         v-if="list.length === 0"
         class="min-h-[15rem] flex flex-col bg-white rounded-xl"
@@ -183,6 +183,12 @@ export default {
   </div>
 
   <div
+    data-hs-overlay-backdrop-template=""
+    class="transition duration fixed inset-0 z-50 bg-gray-900 bg-opacity-75 dark:bg-opacity-80 hs-overlay-backdrop"
+    v-if="openModal"
+  ></div>
+
+  <div
     id="hs-basic-modal"
     class="hs-overlay w-full h-full fixed bottom-0 left-0 right-0 z-[60] overflow-x-hidden overflow-y-auto max-w-[420px] mx-auto"
     v-if="openModal"
@@ -219,7 +225,7 @@ export default {
       <div class="flex flex-col gap-5 w-full">
         <button
           type="button"
-          class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-gray-100 border border-transparent font-semibold text-gray-500 hover:text-white hover:bg-gray-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-600 dark:text-white dark:focus:ring-offset-gray-800"
+          class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-gray-100 border border-transparent font-semibold text-gray-500 hover:text-white hover:bg-gray-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm"
           @click="handleDelete()"
         >
           Delete item
@@ -234,9 +240,4 @@ export default {
       </div>
     </div>
   </div>
-  <div
-    data-hs-overlay-backdrop-template=""
-    class="transition duration fixed inset-0 z-50 bg-gray-900 bg-opacity-75 dark:bg-opacity-80 hs-overlay-backdrop"
-    v-if="openModal"
-  ></div>
 </template>
