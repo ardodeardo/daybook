@@ -1,4 +1,14 @@
 <script>
+import { v4 as uuidv4 } from "uuid";
+
+const initialObj = {
+  id: "",
+  timestamp: "",
+  time: "",
+  date: "",
+  type: "",
+};
+
 export default {
   mounted() {
     const store = JSON.parse(localStorage.getItem("daybook") || null);
@@ -10,10 +20,38 @@ export default {
   data() {
     return {
       list: [],
-      handleBadge: (type) => {
-        const temp = type == "milk" ? "bg-blue-500" : "bg-red-500";
+      selected: initialObj,
+      openModal: false,
+      handleScrollBottom: () => {
+        setTimeout(() => {
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth",
+          });
+        }, 300);
+      },
+      handleSelected: (item) => {
+        this.selected = item;
+        this.openModal = true;
+      },
+      handleCancel: () => {
+        this.selected = initialObj;
+        this.openModal = false;
+      },
+      handleDelete: () => {
+        const removedSelected = this.list.filter(
+          (item) =>
+            item.id !== this.selected.id ||
+            item.timestamp !== this.selected.timestamp
+        );
 
-        return temp;
+        this.list = removedSelected;
+        this.openModal = false;
+        this.selected = initialObj;
+
+        localStorage.setItem("daybook", JSON.stringify(removedSelected));
+
+        this.handleScrollBottom();
       },
       handleStamp: (type = "milk") => {
         const now = new Date();
@@ -25,6 +63,7 @@ export default {
         const date = now.toDateString();
 
         this.list.push({
+          id: uuidv4(),
           timestamp: now,
           time: time,
           date: date,
@@ -33,12 +72,28 @@ export default {
 
         localStorage.setItem("daybook", JSON.stringify(this.list));
 
-        setTimeout(() => {
-          window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth",
-          });
-        }, 300);
+        this.handleScrollBottom();
+      },
+      handleBadge: (type) => {
+        let temp = "";
+
+        switch (type) {
+          case "milk":
+            temp = "bg-blue-500";
+            break;
+          case "pumping":
+            temp = "bg-purple-500";
+            break;
+
+          case "diaper":
+            temp = "bg-red-500";
+            break;
+
+          default:
+            break;
+        }
+
+        return temp;
       },
     };
   },
@@ -64,10 +119,10 @@ export default {
       <!-- Grid -->
       <div class="grid gap-4 sm:gap-6">
         <!-- Card -->
-        <a
+        <div
           v-for="item in list"
-          class="group flex flex-col bg-white border shadow-sm rounded-xl hover:shadow-md transition"
-          href="#"
+          class="group flex flex-col bg-white border shadow-sm rounded-xl hover:shadow-md transition hover:cursor-pointer"
+          @click="handleSelected(item)"
         >
           <div class="p-4 md:p-5">
             <div class="flex justify-between items-center">
@@ -90,7 +145,7 @@ export default {
               </div>
             </div>
           </div>
-        </a>
+        </div>
         <!-- End Card -->
       </div>
       <!-- End Grid -->
@@ -102,21 +157,86 @@ export default {
   <div
     class="fixed bottom-0 left-0 right-0 z-10 p-5 bg-white md:w-[420px] mx-auto"
   >
-    <div class="flex flex-col gap-4">
+    <div class="flex gap-4">
       <button
         type="button"
         class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-blue-100 border border-transparent font-semibold text-blue-500 xl:hover:text-white xl:hover:bg-blue-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm w-full"
         v-on:click="handleStamp('milk')"
       >
-        Stamp Milk
+        Milk
+      </button>
+      <button
+        type="button"
+        class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-purple-100 border border-transparent font-semibold text-purple-500 xl:hover:text-white xl:hover:bg-purple-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-purple-500 focus:ring-offset-2 transition-all text-sm w-full"
+        v-on:click="handleStamp('pumping')"
+      >
+        Pumping
       </button>
       <button
         type="button"
         class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-red-100 border border-transparent font-semibold text-red-500 xl:hover:text-white xl:hover:bg-red-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-red-500 focus:ring-offset-2 transition-all text-sm w-full"
         v-on:click="handleStamp('diaper')"
       >
-        Stamp Diaper
+        Diaper
       </button>
     </div>
   </div>
+
+  <div
+    id="hs-basic-modal"
+    class="hs-overlay w-full h-full fixed bottom-0 left-0 right-0 z-[60] overflow-x-hidden overflow-y-auto max-w-[420px] mx-auto"
+    v-if="openModal"
+  >
+    <div class="p-5 flex flex-col w-full h-full items-between gap-10">
+      <div class="flex-1 flex items-end">
+        <div
+          class="group flex flex-col bg-white border shadow-sm rounded-xl hover:shadow-md transition hover:cursor-pointer w-full border-red-400"
+        >
+          <div class="p-4 md:p-5">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center">
+                <div class="ml-0">
+                  <h3
+                    class="group-hover:text-blue-600 font-semibold text-gray-800"
+                  >
+                    {{ selected.time }}
+                  </h3>
+                  <p class="text-sm text-gray-500">{{ selected.date }}</p>
+                </div>
+              </div>
+              <div class="pl-3">
+                <span
+                  class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium text-white mt-5"
+                  :class="handleBadge(selected.type)"
+                  >{{ selected.type }}</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-5 w-full">
+        <button
+          type="button"
+          class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-gray-100 border border-transparent font-semibold text-gray-500 hover:text-white hover:bg-gray-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-gray-500 focus:ring-offset-2 transition-all text-sm dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-600 dark:text-white dark:focus:ring-offset-gray-800"
+          @click="handleDelete()"
+        >
+          Delete item
+        </button>
+        <button
+          type="button"
+          class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-blue-100 border border-transparent font-semibold text-blue-500 hover:text-white hover:bg-blue-100 focus:outline-none focus:ring-2 ring-offset-white focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+          @click="handleCancel()"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    data-hs-overlay-backdrop-template=""
+    class="transition duration fixed inset-0 z-50 bg-gray-900 bg-opacity-75 dark:bg-opacity-80 hs-overlay-backdrop"
+    v-if="openModal"
+  ></div>
 </template>
