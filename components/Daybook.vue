@@ -21,7 +21,26 @@ export default {
     return {
       list: [],
       selected: initialObj,
+      temporary: initialObj,
       openModal: false,
+      onEdit: false,
+      formatDate: () => {
+        const timestamp = new Date(this.selected.timestamp);
+
+        const year = timestamp.getFullYear();
+        const month = (timestamp.getMonth() + 1).toString().padStart(2, "0");
+        const day = timestamp.getDate().toString().padStart(2, "0");
+        const hours = timestamp.getHours().toString().padStart(2, "0");
+        const minutes = timestamp.getMinutes().toString().padStart(2, "0");
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      },
+      whenModalClosed: () => {
+        this.onEdit = false;
+        this.openModal = false;
+        this.temporary = initialObj;
+        this.selected = initialObj;
+      },
       handleScrollBottom: () => {
         setTimeout(() => {
           window.scrollTo({
@@ -29,6 +48,57 @@ export default {
             behavior: "smooth",
           });
         }, 300);
+      },
+      handleClass: (item) => {
+        const { id = null, timestamp } = item;
+
+        let classes =
+          "group flex flex-col bg-white border shadow-sm rounded-xl hover:shadow-md transition hover:cursor-pointer ";
+
+        if (this.selected.id && id) {
+          if (this.selected.id === id) {
+            classes = classes.concat("border-red-400");
+          }
+        } else {
+          if (this.selected.timestamp === timestamp) {
+            classes = classes.concat("border-red-400");
+          }
+        }
+
+        return classes;
+      },
+      handleChangeStamp: (e) => {
+        const newTime = new Date(e.target.value);
+
+        const time = newTime.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const date = newTime.toDateString();
+
+        const newObj = {
+          ...this.selected,
+          timestamp: newTime.toLocaleString(),
+          date: date,
+          time: time,
+        };
+
+        this.selected = newObj;
+      },
+      handleSaveEdited: () => {
+        const saveEdited = this.list.map((item) => {
+          if (item.id === this.selected.id) {
+            return this.selected;
+          } else {
+            return item;
+          }
+        });
+
+        this.list = saveEdited;
+
+        localStorage.setItem("daybook", JSON.stringify(saveEdited));
+
+        this.whenModalClosed();
       },
       handleSelected: (item) => {
         this.selected = item;
@@ -46,8 +116,7 @@ export default {
         );
 
         this.list = removedSelected;
-        this.openModal = false;
-        this.selected = initialObj;
+        this.whenModalClosed();
 
         localStorage.setItem("daybook", JSON.stringify(removedSelected));
 
@@ -120,8 +189,10 @@ export default {
       <div class="grid gap-4 sm:gap-6">
         <!-- Card -->
         <div
-          v-for="item in list"
-          class="group flex flex-col bg-white border shadow-sm rounded-xl hover:shadow-md transition hover:cursor-pointer"
+          v-for="item in list.sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          )"
+          v-bind:class="handleClass(item)"
           @click="handleSelected(item)"
         >
           <div class="p-4 md:p-5">
@@ -195,28 +266,70 @@ export default {
   >
     <div class="p-5 flex flex-col w-full h-full items-between gap-10">
       <div class="flex-1 flex items-end">
-        <div
-          class="group flex flex-col bg-white border shadow-sm rounded-xl hover:shadow-md transition hover:cursor-pointer w-full border-red-400"
-        >
-          <div class="p-4 md:p-5">
-            <div class="flex justify-between items-center">
-              <div class="flex items-center">
-                <div class="ml-0">
-                  <h3
-                    class="group-hover:text-blue-600 font-semibold text-gray-800"
+        <div class="flex flex-col gap-4 w-full">
+          <div
+            class="group flex flex-col bg-white border shadow-sm rounded-xl hover:shadow-md transition hover:cursor-pointer w-full"
+            @click="
+              () => {
+                this.temporary = this.selected;
+                onEdit = true;
+              }
+            "
+          >
+            <div class="p-4 md:p-5">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                  <div class="ml-0">
+                    <h3
+                      class="md:group-hover:text-blue-600 font-semibold text-gray-800 text-xl"
+                    >
+                      {{ selected.time }}
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-2">
+                      {{ selected.date }}
+                    </p>
+                  </div>
+                </div>
+                <div class="pl-3">
+                  <span
+                    class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium text-white mt-5"
+                    :class="handleBadge(selected.type)"
+                    >{{ selected.type }}</span
                   >
-                    {{ selected.time }}
-                  </h3>
-                  <p class="text-sm text-gray-500">{{ selected.date }}</p>
                 </div>
               </div>
-              <div class="pl-3">
-                <span
-                  class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium text-white mt-5"
-                  :class="handleBadge(selected.type)"
-                  >{{ selected.type }}</span
-                >
-              </div>
+            </div>
+          </div>
+          <div
+            class="flex flex-col gap-4 bg-white border shadow-sm rounded-xl p-4"
+            v-if="onEdit"
+          >
+            <input
+              type="datetime-local"
+              :value="formatDate()"
+              @input="(e) => handleChangeStamp(e)"
+              class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 text-xl"
+            />
+            <div class="flex gap-4">
+              <button
+                type="button"
+                class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-green-100 border border-transparent font-semibold text-green-500 xl:hover:text-white xl:hover:bg-green-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-green-500 focus:ring-offset-2 transition-all text-sm w-full"
+                @click="handleSaveEdited()"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-red-100 border border-transparent font-semibold text-red-500 xl:hover:text-white xl:hover:bg-red-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-red-500 focus:ring-offset-2 transition-all text-sm w-full"
+                @click="
+                  () => {
+                    this.selected = this.temporary;
+                    onEdit = false;
+                  }
+                "
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
