@@ -224,28 +224,53 @@ export default {
     <!-- End Card Section -->
   </div>
 
-  <!-- button actions -->
-  <div
-    class="fixed bottom-0 left-0 right-0 z-10 p-5 bg-white md:w-[420px] mx-auto"
-  >
-    <div class="flex gap-4">
+  <!-- button refresh -->
+  <div class="fixed top-1/2 transform -translate-y-1/2 -right-1 z-10">
+    <a href="/">
       <button
         type="button"
-        class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-blue-100 border border-transparent font-semibold text-blue-500 xl:hover:text-white xl:hover:bg-blue-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm w-full"
+        class="opacity-50 py-3 px-3 inline-flex justify-center items-center gap-2 rounded-l-lg border border-transparent font-semibold bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all text-sm dark:focus:ring-offset-gray-800"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="currentColor"
+          class="bi bi-arrow-clockwise"
+          viewBox="0 0 16 16"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
+          />
+          <path
+            d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"
+          />
+        </svg>
+      </button>
+    </a>
+  </div>
+
+  <!-- button actions -->
+  <div class="fixed bottom-0 left-0 right-0 z-10 bg-white md:w-[420px] mx-auto">
+    <div class="flex">
+      <button
+        type="button"
+        class="py-3 px-4 inline-flex justify-center items-center gap-2 bg-blue-100 border border-transparent font-semibold text-blue-500 xl:hover:text-white xl:hover:bg-blue-500 focus:outline-none ring-offset-white focus:ring-blue-500 focus:ring-offset-2 transition-all text-sm w-full"
         v-on:click="handleStamp('milk')"
       >
         Milk
       </button>
       <button
         type="button"
-        class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-purple-100 border border-transparent font-semibold text-purple-500 xl:hover:text-white xl:hover:bg-purple-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-purple-500 focus:ring-offset-2 transition-all text-sm w-full"
+        class="py-6 px-4 inline-flex justify-center items-center gap-2 bg-purple-100 border border-transparent font-semibold text-purple-500 xl:hover:text-white xl:hover:bg-purple-500 focus:outline-none ring-offset-white focus:ring-purple-500 focus:ring-offset-2 transition-all text-sm w-full"
         v-on:click="handleStamp('pumping')"
       >
         Pumping
       </button>
       <button
         type="button"
-        class="py-3 px-4 inline-flex justify-center items-center gap-2 rounded-md bg-red-100 border border-transparent font-semibold text-red-500 xl:hover:text-white xl:hover:bg-red-500 focus:outline-none focus:ring-2 ring-offset-white focus:ring-red-500 focus:ring-offset-2 transition-all text-sm w-full"
+        class="py-3 px-4 inline-flex justify-center items-center gap-2 bg-red-100 border border-transparent font-semibold text-red-500 xl:hover:text-white xl:hover:bg-red-500 focus:outline-none ring-offset-white focus:ring-red-500 focus:ring-offset-2 transition-all text-sm w-full"
         v-on:click="handleStamp('diaper')"
       >
         Diaper
@@ -308,7 +333,7 @@ export default {
               type="datetime-local"
               :value="formatDate()"
               @input="(e) => handleChangeStamp(e)"
-              class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 text-xl"
+              class="py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 text-xl bg-white"
             />
             <div class="flex gap-4">
               <button
